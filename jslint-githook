@@ -5,5 +5,47 @@
 # To enable this hook, rename this file to "pre-commit" and insert it in you .git/hooks/ folder
 # --
 
-echo 'in'
-exit 0
+PathToJslint="js/libs/jsl/jsl"
+AtLeastOneError=false
+
+validationErrorHandler(){
+	AtLeastOneError=true
+}
+
+printSectionLine(){
+	echo "# -------------------------------------------------- "
+}
+
+printSummary(){
+	printSectionLine
+	echo "#  $1"
+	printSectionLine
+}
+
+printSectionLine
+echo "# Executing JsLint validation"
+printSectionLine
+
+if ! git diff --name-only | grep .js 
+	then
+	echo "#  No javascript changes";
+	echo "\n";
+	exit 0;
+fi
+
+for FILE in `git diff --name-only | grep .js`
+do
+	echo "# ON FILE: $FILE"
+	trap 'validationErrorHandler' ERR
+	$PathToJslint -process $FILE -nologo
+done
+
+
+if $AtLeastOneError
+	then 
+		printSummary "Commit blocked, 1 or more errors/warnings on Javascript code, please correct and try again.";
+		exit 1
+	else
+		printSummary "Javascript validation successful, No Erros Found.";
+		exit 0
+fi	
