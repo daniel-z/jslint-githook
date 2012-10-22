@@ -1,0 +1,1 @@
+Git Hook to execute automatically jslint validation to all the javascript files modified before commit.
