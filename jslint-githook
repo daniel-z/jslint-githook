@@ -4,3 +4,6 @@
 # --
 # To enable this hook, rename this file to "pre-commit" and insert it in you .git/hooks/ folder
 # --
+
+echo 'in'
+exit 0
