@@ -1,0 +1,6 @@
+#!/bin/sh
+# --
+# A hook to automatically execute jslint on modified javascript files after every commit.
+# --
+# To enable this hook, rename this file to "pre-commit" and insert it in you .git/hooks/ folder
+# --
