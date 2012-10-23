@@ -1,17 +1,15 @@
-#!/bin/sh
+#!/bin/sh +x
 # --
 # A hook to automatically execute jslint on modified javascript files after every commit.
 # --
-# To make this hook works, rename this file to "pre-commit" and insert it in you .git/hooks/ folder
-# NOTE: if you move the jsl-0.3.0 folder, you have to update the variable "PathToJslint" below.
+# To make this hook work, rename this file as "pre-commit" and insert it in you .git/hooks/ folder
+# NOTE: if you move the jsl file, you have to update the variable "PathToJslint" below.
 # --
 
-
-# IMPORTANT: the hook will be executed from the root of the git working tree
-# this path should be relative to this
-PathToJslint="jsl-0.3.0/"
+# IMPORTANT: the hook will be executed from the root folder of the git working tree
+# so the next paths must be relative to that
+PathToJslint="./" 
 JSLint=$PathToJslint'jsl'
-
 
 AtLeastOneError=false
 modifiedJavascriptFileNames=""
@@ -20,6 +18,7 @@ JSFileCounter=''
 
 validationErrorHandler(){
 	AtLeastOneError=true
+	
 }
 
 
@@ -34,15 +33,16 @@ printSummary(){
 }
 
 printHeader(){
+	echo ""
 	printSectionLine
-	echo "# Executing JsLint validation"
+	echo "#       Executing JsLint validation"
 	printSectionLine
 }
 
 printValidatingFile(){
-	printSectionLine
-	echo "# VALIDATING FILE: $1"
-	printSectionLine
+	echo ""
+	echo "# --------------- VALIDATING FILE: $1 --------------------"
+	echo ""
 }
 
 validateJSLintPath(){
@@ -73,6 +73,9 @@ checkIfJSFilesAreModified(){
 	if [ $JsFileCounter = 0 ];
 		then
 		echo "#  No javascript changes"
+		echo "#  Nothing to validate"
+		printSectionLine
+		echo ""
 		exit 0
 	fi
 }
@@ -81,10 +84,15 @@ validateEveryJSFile(){
 	trap 'validationErrorHandler' ERR
 	for FILE in ${JSFileNames[@]}
 	do
+		outputFormat="--line:__LINE__: __ERROR__"
 		printValidatingFile $FILE
-		result=`$JSLint -process $FILE -nologo -nofilelisting`
-		echo "$result"
-	done	
+		# echo "$FILE"
+		# echo "$JSLintConfFile"
+		validationResult=`$JSLint -process $FILE -nologo -nofilelisting -nocontext -output-format "$outputFormat"`
+		echo "$validationResult"
+		echo ""
+		echo ""
+	done
 }
 
 checkForJSLintErrors(){
@@ -98,8 +106,7 @@ checkForJSLintErrors(){
 	fi		
 }
 
-
-
+# Main Process
 validateJSLintPath
 printHeader
 checkIfJSFilesAreModified
