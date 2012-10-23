@@ -6,12 +6,12 @@ This will run for every javascript file modified.
 This was designed to be used in a developer environment.
 
 
-## TO USE
+## TO USE IT
 
 1. Put jsl file in your git root folder
 2. Rename jslint-githook as pre-commit and move it to the .git/hooks folder in your project
 
-#### NOTE: if you want to move the jsl file to a different location, just update the variable PathToJslint 
+#### NOTE: if you want to move the jsl file to a different location, just update the variable PathToJslint inside jslint-githook file 
 
 
 ## THIS REPO INCLUDES
