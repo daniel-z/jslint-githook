@@ -9,6 +9,7 @@ PathToJslint="js/libs/jsl/jsl"
 AtLeastOneError=false
 modifiedJavascriptFileNames=""
 JSFileNames=''
+JSFileCounter=''
 
 validationErrorHandler(){
 	AtLeastOneError=true
@@ -45,52 +46,55 @@ validateJSLintPath(){
 	fi
 }
 
-getModifiedJavascriptFiles(){
+processModifiedJavascriptFiles(){
 	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
 	if git-rev-parse --verify HEAD >/dev/null 2>&1; then
 	    against=HEAD
 	fi
 
 	getNamesCommand=`git diff-index --name-only $against -- | cut -c1-`
-	counter=0
+	JsFileCounter=0
 	for NAME in $getNamesCommand
 	do
-		JSFileNames[$counter]=$NAME
-		counter+=1
+		JSFileNames[ $JsFileCounter ]=$NAME
+		JsFileCounter=$(( $JsFileCounter + 1 ))
 	done
 }
 
-validateJSFilesAreModified(){
-
-	getModifiedJavascriptFiles
-
-	if [ ${#JSFileNames[0]} <= 0 ];
+checkIfJSFilesAreModified(){
+	processModifiedJavascriptFiles
+	if [ $JsFileCounter = 0 ];
 		then
 		echo "#  No javascript changes"
 		exit 0
 	fi
 }
 
+validateEveryJSFile(){
+	trap 'validationErrorHandler' ERR
+	for FILE in ${JSFileNames[@]}
+	do
+		printValidatingFile $FILE
+		result=`$PathToJslint -process $FILE -nologo -nofilelisting`
+		echo "$result"
+	done	
+}
+
+checkForJSLintErrors(){
+	if $AtLeastOneError
+		then 
+			printSummary "Commit blocked, errors/warnings found on Javascript code, please correct and try again.";
+			exit 1
+		else
+			printSummary "Javascript validation successful, No Erros Found.";
+			exit 0
+	fi		
+}
+
+
 
 validateJSLintPath
-validateJSFilesAreModified
 printHeader
-
-trap 'validationErrorHandler' ERR
-
-for FILE in $JSFileNames
-do
-	printValidatingFile $FILE
-	`$PathToJslint -process $FILE -nologo -nofilelisting +recurse`
-	echo "$result"
-done
-
-
-if $AtLeastOneError
-	then 
-		printSummary "Commit blocked, 1 or more errors/warnings on Javascript code, please correct and try again.";
-		exit 1
-	else
-		printSummary "Javascript validation successful, No Erros Found.";
-		exit 0
-fi	
+checkIfJSFilesAreModified
+validateEveryJSFile
+checkForJSLintErrors
