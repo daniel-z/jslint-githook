@@ -18,4 +18,4 @@ This was designed to be used in a developer environment.
 
 * jslint-githook       - pre-commit git hook
 * jsl                  - jsl library version 0.3.0 - unpackaged
-* jsl-0.3.0-mac.tar.gz - original jsl library package from http://www.javascriptlint.com/
+* jsl-0.3.0-mac.tar.gz - just a backup of the original jsl library package from http://www.javascriptlint.com/
