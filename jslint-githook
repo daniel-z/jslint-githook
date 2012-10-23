@@ -7,13 +7,16 @@
 
 PathToJslint="js/libs/jsl/jsl"
 AtLeastOneError=false
+modifiedJavascriptFileNames=""
+JSFileNames=''
 
 validationErrorHandler(){
 	AtLeastOneError=true
 }
 
+
 printSectionLine(){
-	echo "# -------------------------------------------------- "
+	echo "# --------------------------------------------------"
 }
 
 printSummary(){
@@ -22,22 +25,64 @@ printSummary(){
 	printSectionLine
 }
 
-printSectionLine
-echo "# Executing JsLint validation"
-printSectionLine
+printHeader(){
+	printSectionLine
+	echo "# Executing JsLint validation"
+	printSectionLine
+}
 
-if ! git diff --name-only | grep .js 
-	then
-	echo "#  No javascript changes";
-	echo "\n";
-	exit 0;
-fi
+printValidatingFile(){
+	printSectionLine
+	echo "# VALIDATING FILE: $1"
+	printSectionLine
+}
 
-for FILE in `git diff --name-only | grep .js`
+validateJSLintPath(){
+	if ! [ -f $PathToJslint ]
+		then
+		printSummary "jslint-hook not working, please download jslint file and set the PathToJslint variable."
+		exit 0
+	fi
+}
+
+getModifiedJavascriptFiles(){
+	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+	if git-rev-parse --verify HEAD >/dev/null 2>&1; then
+	    against=HEAD
+	fi
+
+	getNamesCommand=`git diff-index --name-only $against -- | cut -c1-`
+	counter=0
+	for NAME in $getNamesCommand
+	do
+		JSFileNames[$counter]=$NAME
+		counter+=1
+	done
+}
+
+validateJSFilesAreModified(){
+
+	getModifiedJavascriptFiles
+
+	if [ ${#JSFileNames[0]} <= 0 ];
+		then
+		echo "#  No javascript changes"
+		exit 0
+	fi
+}
+
+
+validateJSLintPath
+validateJSFilesAreModified
+printHeader
+
+trap 'validationErrorHandler' ERR
+
+for FILE in $JSFileNames
 do
-	echo "# ON FILE: $FILE"
-	trap 'validationErrorHandler' ERR
-	$PathToJslint -process $FILE -nologo
+	printValidatingFile $FILE
+	`$PathToJslint -process $FILE -nologo -nofilelisting +recurse`
+	echo "$result"
 done
 
 
