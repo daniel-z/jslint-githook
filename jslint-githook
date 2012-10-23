@@ -2,10 +2,17 @@
 # --
 # A hook to automatically execute jslint on modified javascript files after every commit.
 # --
-# To enable this hook, rename this file to "pre-commit" and insert it in you .git/hooks/ folder
+# To make this hook works, rename this file to "pre-commit" and insert it in you .git/hooks/ folder
+# NOTE: if you move the jsl-0.3.0 folder, you have to update the variable "PathToJslint" below.
 # --
 
-PathToJslint="js/libs/jsl/jsl"
+
+# IMPORTANT: the hook will be executed from the root of the git working tree
+# this path should be relative to this
+PathToJslint="jsl-0.3.0/"
+JSLint=$PathToJslint'jsl'
+
+
 AtLeastOneError=false
 modifiedJavascriptFileNames=""
 JSFileNames=''
@@ -39,9 +46,9 @@ printValidatingFile(){
 }
 
 validateJSLintPath(){
-	if ! [ -f $PathToJslint ]
+	if ! [ -f $JSLint ]
 		then
-		printSummary "jslint-hook not working, please download jslint file and set the PathToJslint variable."
+		printSummary "jslint-hook not working, we can't find JSLint on: $JSLint \n#  please validate the library is there or update the PathToJslint variable."
 		exit 0
 	fi
 }
@@ -75,7 +82,7 @@ validateEveryJSFile(){
 	for FILE in ${JSFileNames[@]}
 	do
 		printValidatingFile $FILE
-		result=`$PathToJslint -process $FILE -nologo -nofilelisting`
+		result=`$JSLint -process $FILE -nologo -nofilelisting`
 		echo "$result"
 	done	
 }
