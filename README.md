@@ -1,4 +1,5 @@
-# JSLint-GitHook : http://daniel-z.github.com/jslint-githook/
+# JSLint-GitHook
+http://daniel-z.github.com/jslint-githook/
 =============
 
 A git hook to execute jslint automatically when you do a git commit.
