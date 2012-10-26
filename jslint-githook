@@ -59,7 +59,7 @@ processModifiedJavascriptFiles(){
 	    against=HEAD
 	fi
 
-	getNamesCommand=`git diff-index --name-only $against -- | cut -c1-`
+	getNamesCommand=`git diff-index --name-only $against | grep \.js$`
 	JsFileCounter=0
 	for NAME in $getNamesCommand
 	do
