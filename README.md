@@ -8,6 +8,7 @@ This was designed to be used in a developer environment.
 
 
 ## TO USE IT
+(Note: I'm working to install this as a ruby gem and automatize the next steps)
 
 1. Put jsl file in your git root folder
 2. Rename jslint-githook as pre-commit and move it to the .git/hooks folder in your project
